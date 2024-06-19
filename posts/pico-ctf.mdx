@@ -1,0 +1,197 @@
+---
+title: picoCTF - A Writeup for 'Beginner picoMini 2022'
+description: "After watching the WiCyS Capture the Flag 101 webinar on BrightTALK, I decided I ought to buckle down and work on CTFs regularly. While I've done a couple before, I never made a writeup alongside it, so I decided to knock out the 'Beginner picoMini 2022' picoCTF and practice my writing."
+date: Aug 22 2023
+---
+
+After watching the [WiCyS Capture the Flag 101 webinar on BrightTALK](https://www.brighttalk.com/webcast/17216/590698), I decided I ought to buckle down and work on CTFs regularly. While I've done a couple before, I never made a writeup alongside it, so I decided to knock out the 'Beginner picoMini 2022' picoCTF and practice my writing.
+
+Without further ado, let's dive into my step-by-step solutions that demonstrate how I tackled each challenge and end with valuable lessons I learned along the way.
+
+## Codebook
+
+> Run the Python script `code.py` in the same directory as `codebook.txt`.
+
+Starting easy, all I had to do was run `python3 code.py`.
+
+## contertme.py
+
+> Run the Python script and convert the given number from decimal to binary to get the flag.
+
+I used an online decimal-to-binary converter with the number I was given after running the Python script, then entered the binary base to get the flag.
+
+## fixme1.py
+
+> Fix the syntax error in this Python script to print the flag.
+
+I ran the script to find which line the syntax error was on, which ended up being an indentation error on the print function line. Opening the file with the command `gedit fixme1.py`, I then fixed the error by deleting the indentation.
+
+```
+flag = str_xor(flag_enc, 'enkidu')
+print('That is correct! Here\'s your flag: ' + flag)
+```
+
+## fixme2.py
+
+> Fix the syntax error in the Python script to print the flag.
+
+Just like in the last exercise, I ran the script to find the error line. I received this error message: SyntaxError: `invalid syntax. Maybe you meant '==' or ':=' instead of '='?`. Using Gedit again, I opened the file and added the missing `=`.
+
+```
+if flag == "":
+  print('String XOR encountered a problem, quitting.')
+```
+
+## Glitch Cat
+
+> Our flag printing service has started glitching!
+>
+> `$ ncsaturn.picoctf.net52682`
+
+I ran the command in the terminal and received a string with half of the flag. The other half was the "glitched" part, returning a sequence of Python `'chr()'` function calls with hexadecimal values. I created a Python script file with the `print()` function and the sequence. After running my script, the hex values were converted to ASCII characters which completed the entire flag.
+
+## HashingJobApp
+
+> If you want to hash with the best, beat this test!
+>
+> `$ ncsaturn.picoctf.net53638`
+
+After running the command, I received a message that said, "Please md5 hash the text between quotes, excluding the quotes." Following the message was a random string. Using an online MD5 hash encoder, I generated the hash from the string. Entering the hash into the answer input, I was given a similar message with another string I needed to encode. After answering again, and doing it one more time, I was given the flag.
+
+## PW Crack 1
+
+> Can you crack the password to get the flag? Download the password checker here and you'll need the encrypted flag in the same directory too.
+
+When running the `level1.py` script, I'm prompted by the console to enter a password for the flag. Looking at the code, I noticed the password is easily found in the if statement following the code for the input prompt.
+
+```
+    if( user_pw == "691d"):
+```
+Copying the password from the code, I reran the script and entered the password into the input, which then returned the flag.
+
+## PW Crack 2
+
+> Can you crack the password to get the flag? Download the password checker here and you'll need the encrypted flag in the same directory too.
+
+Similar to the last challenge, I took a look at the code of the Python script, and the password is also readily seen. Unlike last time, it's hidden in a sequence of `'chr()'` functions. I copied the functions, then using the print function, I printed the functions to the console right before the password input.
+
+```
+    print(chr(0x33) + chr(0x39) + chr(0x63) + chr(0x65))
+    user_pw = input("Please enter correct password for flag: ")
+    if( user_pw == chr(0x33) + chr(0x39) + chr(0x63) + chr(0x65) ):
+        print("Welcome back... your flag, user:")
+```
+
+## PW Crack 3
+
+> Can you crack the password to get the flag? Download the password checker here and you'll need the encrypted flag and the hash in the same directory too.
+>
+> There are 7 potential passwords with 1 being correct. You can find these by examining the password checker script.
+
+Taking a look at the Python script, I saw the list of possible passwords assigned to the variable pos_pw_list. Rather than inputting the values by hand one at a time, I decided to get a `for` loop to do it. Commenting out the input line, I added `for user_pw in pos_pw_list:` and indented the following lines. I also moved the list of passwords above the function call.
+
+```
+def level_3_pw_check():
+    # user_pw = input("Please enter correct password for flag: ")
+    for user_pw in pos_pw_list:
+        user_pw_hash = hash_pw(user_pw)
+
+        if( user_pw_hash == correct_pw_hash ):
+            print("Welcome back... your flag, user:")
+            decryption = str_xor(flag_enc.decode(), user_pw)
+            print(decryption)
+            return
+        print("That password is incorrect")
+
+# The strings below are 7 possibilities for the correct password. 
+#   (Only 1 is correct)
+pos_pw_list = ["6997", "3ac8", "f0ac", "4b17", "ec27", "4e66", "865e"]
+
+level_3_pw_check()
+```
+
+## PW Crack 4
+
+> Can you crack the password to get the flag? Download the password checker here and you'll need the encrypted flag and the hash in the same directory too.
+>
+> There are 100 potential passwords with only 1 being correct. You can find these by examining the password checker script.
+
+In this task, I used a `for` loop like before. I removed the input line and used `for user_pw in pos_pw_list:`, and then I indented the next lines to include them in the loop.
+
+```
+...
+
+def level_4_pw_check():
+    # user_pw = input("Please enter correct password for flag: ")
+    for user_pw in pos_pw_list:
+        user_pw_hash = hash_pw(user_pw)
+
+        if( user_pw_hash == correct_pw_hash ):
+            print("Welcome back... your flag, user:")
+            decryption = str_xor(flag_enc.decode(), user_pw)
+            print(decryption)
+            return
+        print("That password is incorrect")
+
+# The strings below are 100 possibilities for the correct password. 
+#   (Only 1 is correct)
+pos_pw_list = ["6288", "6152", "4c7a", "b722", "9a6e", "6717", "4389", "1a28", "37ac", "de4f", "eb28", "351b", "3d58", "948b", "231b", "973a", "a087", "384a", "6d3c", "9065", "725c", "fd60", "4d4f", "6a60", "7213", "93e6", "8c54", "537d", "a1da", "c718", "9de8", "ebe3", "f1c5", "a0bf", "ccab", "4938", "8f97", "3327", "8029", "41f2", "a04f", "c7f9", "b453", "90a5", "25dc", "26b0", "cb42", "de89", "2451", "1dd3", "7f2c", "8919", "f3a9", "b88f", "eaa8", "776a", "6236", "98f5", "492b", "507d", "18e8", "cfb5", "76fd", "6017", "30de", "bbae", "354e", "4013", "3153", "e9cc", "cba9", "25ea", "c06c", "a166", "faf1", "2264", "2179", "cf30", "4b47", "3446", "b213", "88a3", "6253", "db88", "c38c", "a48c", "3e4f", "7208", "9dcb", "fc77", "e2cf", "8552", "f6f8", "7079", "42ef", "391e", "8a6d", "2154", "d964", "49ec"]
+
+level_4_pw_check()
+```
+
+## PW Crack 5
+
+> Can you crack the password to get the flag? Download the password checker here and you'll need the encrypted flag and the hash in the same directory too. Here's a dictionary with all possible passwords based on the password conventions we've seen so far.
+
+This task isn't too different from the last two, except, rather than having the password list included in the `level5.py` file, the list of passwords is in a separate `dictionary.txt` file. Inside the `level_5_pw_check()` function, I opened the file and assigned the file object to the `pw_list` variable. Next, I commented out the following line, and then I created a `for` loop to iterate over each line from the list of passwords.
+
+To remove any whitespace in the provided passwords, I used the `strip()` method on the password being iterated over and assigned it to the variable `user_pw`, since I'd removed the original. Finally, I nested the rest of the function into the `for` loop.
+
+```
+...
+
+def level_5_pw_check():
+    pw_list = open('dictionary.txt')
+    # user_pw = input("Please enter correct password for flag: ")
+    for password in pw_list:
+        user_pw = password.strip()
+        user_pw_hash = hash_pw(user_pw)
+        print(user_pw_hash)
+
+        if( user_pw_hash == correct_pw_hash ):
+            print("Welcome back... your flag, user:")
+            decryption = str_xor(flag_enc.decode(), user_pw)
+            print(decryption)
+            return
+        print("That password is incorrect")
+
+level_5_pw_check()
+```
+
+## runme.py
+
+> Run the `runme.py` script to get the flag. Download the script with your browser or with `wget` in the webshell.
+
+I simply ran the script using `python3 runme.py`.
+
+## Serpentine
+
+> Find the flag in the Python script!
+
+Running the Python script, I noticed "option `'b'`" is supposed to return the flag, but instead of the flag, a message is returned telling me to check the source code to find the `print_flag` function.
+
+Looking at the code, inside the `print_flag` there's a print function that's supposed to print out a sequence of Python `'chr()'` function calls after converting from hexadecimal values to ASCII characters. I replaced the string that prints in the `'b'` option with the `print_flag()` function call. After running the script again and selecting "option `'b'`," I'm able to access the flag.
+
+```
+    elif choice == 'b':
+      print_flag()
+```
+
+## Lessons Learned
+
+1. I gained greater familiarity with analyzing Python scripts for errors or concealed information.
+
+2. Instead of manually entering values into the password input, I successfully automated the task using for loops.
+
+Overall, the 'Beginner picoMini 2022' CTF challenges were a simple introduction to CTFs and working with Python scripts. By analyzing Python scripts, utilizing online tools, and implementing automation techniques, I was able to practice my problem-solving skills in cybersecurity and programming.
